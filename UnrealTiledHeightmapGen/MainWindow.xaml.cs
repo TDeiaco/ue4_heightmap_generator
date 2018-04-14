@@ -22,6 +22,8 @@ namespace UnrealTiledHeightmapGen
     {
         public MainWindow()
         {
+            ResolveAssemblies.SetupAssemblyResolveOnCurrentAppDomain();
+
             InitializeComponent();
 
             DataContext = new MainWindowDataContext();

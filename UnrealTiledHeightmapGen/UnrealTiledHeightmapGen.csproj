@@ -63,6 +63,7 @@
     </ApplicationDefinition>
     <Compile Include="ResolutionComboBoxItem.cs" />
     <Compile Include="RelayCommand.cs" />
+    <Compile Include="ResolveAssemblies.cs" />
     <Compile Include="TileCountComboBoxItem.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -112,6 +113,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\HMGIcon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="System.Windows.Interactivity.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
