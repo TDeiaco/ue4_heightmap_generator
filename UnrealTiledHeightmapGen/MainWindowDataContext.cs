@@ -213,9 +213,9 @@ namespace UnrealTiledHeightmapGen
 
                         var writeStream = new FileStream(filename, FileMode.OpenOrCreate);
                         BinaryWriter writeBinay = new BinaryWriter(writeStream);
-                        for (int x = 0; x < SelectedResolutionComboBoxItem.Id + 1; x++)
+                        for (int x = 0; x < SelectedResolutionComboBoxItem.Id; x++)
                         {
-                            for (int y = 0; y < SelectedResolutionComboBoxItem.Id + 1; y++)
+                            for (int y = 0; y < SelectedResolutionComboBoxItem.Id; y++)
                             {
                                 writeBinay.Write(new byte[] { 0, 0 });
                             }

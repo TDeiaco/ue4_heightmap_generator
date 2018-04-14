@@ -13,10 +13,6 @@
         Background="White"
         Icon="HMGIcon.ico">
 
-    <Window.Resources>
-        <local:NumericTextBoxMask x:Key="NumericTextBoxMask" />
-    </Window.Resources>
-
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
