@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:UnrealTiledHeightmapGen"
         xmlns:system="clr-namespace:System;assembly=mscorlib"
+        xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
         mc:Ignorable="d"
         Title="HIVEMIND Games" Height="401" Width="453"
         ResizeMode="NoResize"
@@ -46,6 +47,11 @@
                       DisplayMemberPath="Resolution"
                       ItemsSource="{Binding ResolutionComboBoxItems}"
                       SelectedItem="{Binding SelectedResolutionComboBoxItem, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}">
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="SelectionChanged">
+                        <i:InvokeCommandAction Command="{Binding SelectionChangedCommand}" />
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
             </ComboBox>
 
             <TextBlock Margin="8 8 8 4">
@@ -58,6 +64,11 @@
                       SelectedItem="{Binding SelectedHorizontalTileCountComboBoxItem, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
                       DisplayMemberPath="Value"
                       SelectedValuePath="Id">
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="SelectionChanged">
+                        <i:InvokeCommandAction Command="{Binding SelectionChangedCommand}" />
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
             </ComboBox>
 
             <TextBlock Margin="8 8 8 4">
@@ -70,6 +81,11 @@
                       SelectedItem="{Binding SelectedVerticalTileCountComboBoxItem, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
                       DisplayMemberPath="Value"
                       SelectedValuePath="Id">
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="SelectionChanged">
+                        <i:InvokeCommandAction Command="{Binding SelectionChangedCommand}" />
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
             </ComboBox>
 
             <TextBlock Margin="8 8 8 4">
@@ -106,7 +122,8 @@
                      HorizontalAlignment="Left"
                      VerticalAlignment="Bottom"
                      Padding="4"
-                     Command="{Binding GenerateCommand}">
+                     Command="{Binding GenerateCommand}"
+                     IsEnabled="{Binding GenerateButtonEnabled, UpdateSourceTrigger=PropertyChanged}">
                 Generate
             </Button>
         </StackPanel>
