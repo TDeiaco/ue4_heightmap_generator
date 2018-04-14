@@ -15,59 +15,17 @@ namespace UnrealTiledHeightmapGen
 {
     public class MainWindowDataContext : INotifyPropertyChanged
     {
-
-        private int _horizontalResolution = 512;
-        private int _verticalResolution = 512;
-        private int _horizontalTileCount = 5;
-        private int _verticalTileCount = 5;
         private List<ResolutionComboBoxItem> _resolutionComboBoxItems;
         private ResolutionComboBoxItem _selectedResolutionComboBoxItem;
+
+        private List<TileCountComboBoxItem> _horizontalTileCountComboBoxItems;
+        private TileCountComboBoxItem _selectedHorizontalTileCountComboBoxItem;
+
+        private List<TileCountComboBoxItem> _verticalTileCountComboBoxItems;
+        private TileCountComboBoxItem _selectedVerticalTileCountComboBoxItem;
+
         private string _heightmapFilenames = "TiledHeightmap";
-        private string _baseDirectory = $"{Environment.GetEnvironmentVariable("USERPROFILE")}\\Documents\\";
-
-        public int HorizontalResolution
-        {
-            get { return _horizontalResolution; }
-            set
-            {
-                if (value == _horizontalResolution) return;
-                _horizontalResolution = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public int VerticalResolution
-        {
-            get { return _verticalResolution; }
-            set
-            {
-                if (value == _verticalResolution) return;
-                _verticalResolution = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public int HorizontalTileCount
-        {
-            get { return _horizontalTileCount; }
-            set
-            {
-                if (value == _horizontalTileCount) return;
-                _horizontalTileCount = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public int VerticalTileCount
-        {
-            get { return _verticalTileCount; }
-            set
-            {
-                if (value == _verticalTileCount) return;
-                _verticalTileCount = value;
-                OnPropertyChanged();
-            }
-        }
+        private string _baseDirectory = $"{Environment.GetEnvironmentVariable("USERPROFILE")}\\Documents";
 
         public List<ResolutionComboBoxItem> ResolutionComboBoxItems
         {
@@ -87,6 +45,50 @@ namespace UnrealTiledHeightmapGen
             {
                 if (Equals(value, _selectedResolutionComboBoxItem)) return;
                 _selectedResolutionComboBoxItem = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public List<TileCountComboBoxItem> HorizontalTileCountComboBoxItems
+        {
+            get { return _horizontalTileCountComboBoxItems; }
+            set
+            {
+                if (Equals(value, _horizontalTileCountComboBoxItems)) return;
+                _horizontalTileCountComboBoxItems = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public TileCountComboBoxItem SelectedHorizontalTileCountComboBoxItem
+        {
+            get { return _selectedHorizontalTileCountComboBoxItem; }
+            set
+            {
+                if (Equals(value, _selectedHorizontalTileCountComboBoxItem)) return;
+                _selectedHorizontalTileCountComboBoxItem = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public List<TileCountComboBoxItem> VerticalTileCountComboBoxItems
+        {
+            get { return _verticalTileCountComboBoxItems; }
+            set
+            {
+                if (Equals(value, _verticalTileCountComboBoxItems)) return;
+                _verticalTileCountComboBoxItems = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public TileCountComboBoxItem SelectedVerticalTileCountComboBoxItem
+        {
+            get { return _selectedVerticalTileCountComboBoxItem; }
+            set
+            {
+                if (Equals(value, _selectedVerticalTileCountComboBoxItem)) return;
+                _selectedVerticalTileCountComboBoxItem = value;
                 OnPropertyChanged();
             }
         }
@@ -131,13 +133,45 @@ namespace UnrealTiledHeightmapGen
                 new ResolutionComboBoxItem {Resolution = "8161x8061", Id =8161}
             };
 
-            SelectedResolutionComboBoxItem = new ResolutionComboBoxItem {Id = 505};
+            SelectedResolutionComboBoxItem = new ResolutionComboBoxItem { Id = 505 };
+
+            HorizontalTileCountComboBoxItems = new List<TileCountComboBoxItem>();
+            for (int i = 2; i < 31; i++)
+            {
+                HorizontalTileCountComboBoxItems.Add(new TileCountComboBoxItem() {Id = i, Value = i.ToString()});
+            }
+            SelectedHorizontalTileCountComboBoxItem = new TileCountComboBoxItem();
+
+            VerticalTileCountComboBoxItems = new List<TileCountComboBoxItem>();
+            for (int i = 2; i < 31; i++)
+            {
+                VerticalTileCountComboBoxItems.Add(new TileCountComboBoxItem() { Id = i, Value = i.ToString() });
+            }
+            SelectedVerticalTileCountComboBoxItem = new TileCountComboBoxItem();
         }
 
         private void Generate(object obj)
         {
             try
             {
+                long dataQuantity = ((long)SelectedResolutionComboBoxItem.Id * (long)SelectedResolutionComboBoxItem.Id *
+                                     (long)SelectedVerticalTileCountComboBoxItem.Id * (long)SelectedHorizontalTileCountComboBoxItem.Id) * (long)2; //In bytes
+
+                var driveSpaceLeft = GetDriveSpace();
+                if (dataQuantity > driveSpaceLeft)
+                {
+                    MessageBox.Show(
+                        $"This will generate {FormatBytes(dataQuantity)} which is more than your current available drive space: {FormatBytes(driveSpaceLeft)}.  Canceling..",
+                        "Too much disk space required.", MessageBoxButton.OK);
+
+                    return;
+                }
+                    
+
+                if (MessageBox.Show($"This will generate {FormatBytes(dataQuantity)} of heightmaps, are you sure you want to continue?",
+                        "Proceed?", MessageBoxButton.OKCancel) == MessageBoxResult.Cancel)
+                    return;
+
                 if (string.IsNullOrEmpty(HeightmapFilenames))
                 {
                     MessageBox.Show("Heightmap filenames required!", "Error", MessageBoxButton.OK);
@@ -156,17 +190,17 @@ namespace UnrealTiledHeightmapGen
                     MessageBox.Show(e.Message, "Error creating directory!", MessageBoxButton.OK);
                 }
 
-                for (int xTileIndex = 0; xTileIndex < SelectedResolutionComboBoxItem.Id; xTileIndex++)
+                for (int xTileIndex = 0; xTileIndex < SelectedVerticalTileCountComboBoxItem.Id; xTileIndex++)
                 {
-                    for (int yTileIndex = 0; yTileIndex < SelectedResolutionComboBoxItem.Id; yTileIndex++)
+                    for (int yTileIndex = 0; yTileIndex < SelectedHorizontalTileCountComboBoxItem.Id; yTileIndex++)
                     {
                         var filename = $"{BaseDirectory}\\{HeightmapFilenames}_X{xTileIndex}_Y{yTileIndex}.raw";
 
                         var writeStream = new FileStream(filename, FileMode.OpenOrCreate);
                         BinaryWriter writeBinay = new BinaryWriter(writeStream);
-                        for (int x = 0; x < HorizontalResolution + 1; x++)
+                        for (int x = 0; x < SelectedResolutionComboBoxItem.Id + 1; x++)
                         {
-                            for (int y = 0; y < VerticalResolution + 1; y++)
+                            for (int y = 0; y < SelectedResolutionComboBoxItem.Id + 1; y++)
                             {
                                 writeBinay.Write(new byte[] { 0, 0 });
                             }
@@ -175,6 +209,8 @@ namespace UnrealTiledHeightmapGen
                         writeBinay.Close();
                     }
                 }
+
+                MessageBox.Show("Heightmaps generated.", "Success", MessageBoxButton.OK);
             }
             catch (Exception e)
             {
@@ -193,6 +229,50 @@ namespace UnrealTiledHeightmapGen
                     BaseDirectory = fbd.SelectedPath;
                 }
             }
+        }
+
+        private string FormatBytes(double bytes)
+        {
+            double doubleBytes;
+            if (bytes >= 1099511627776L)
+            {
+                doubleBytes = (double)bytes / 1099511627776L;
+                return Math.Round(doubleBytes, 2) + " TB";
+            }
+            if (bytes >= 1073741824 && bytes < 1099511627775)
+            {
+                doubleBytes = (double)bytes / 1073741824;
+                return Math.Round(doubleBytes, 2) + " GB";
+            }
+            if (bytes >= 1048576 && bytes < 1073741823)
+            {
+                doubleBytes = (double)bytes / 1048576;
+                return Math.Round(doubleBytes, 2) + " MB";
+            }
+            if (bytes >= 1024 && bytes < 1048575)
+            {
+                doubleBytes = (double)bytes / 1024;
+                return Math.Round(doubleBytes, 2) + " KB";
+            }
+            if (bytes >= 0 && bytes < 1023)
+            {
+                doubleBytes = (double)bytes;
+                return Math.Round(doubleBytes, 2) + " Bytes";
+            }
+            return null;
+        }
+
+        private long GetDriveSpace()
+        {
+            string driveName = Path.GetPathRoot(Environment.SystemDirectory); 
+            foreach (DriveInfo drive in DriveInfo.GetDrives())
+            {
+                if (drive.IsReady && drive.Name == driveName)
+                {
+                    return drive.TotalFreeSpace;
+                }
+            }
+            return -1;
         }
 
 

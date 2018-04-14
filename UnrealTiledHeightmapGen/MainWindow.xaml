@@ -8,6 +8,7 @@
         mc:Ignorable="d"
         Title="HIVEMIND Games" Height="401" Width="453"
         ResizeMode="NoResize"
+        SizeToContent="WidthAndHeight"
         Background="White"
         Icon="HMGIcon.ico">
 
@@ -22,8 +23,6 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="50"/>
             <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
         <TextBlock Grid.Row="0"
@@ -46,60 +45,40 @@
                       SelectedValuePath="Id"
                       DisplayMemberPath="Resolution"
                       ItemsSource="{Binding ResolutionComboBoxItems}"
-                      SelectedItem="{Binding SelectedResolutionComboBoxItem, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
-                      SelectedIndex="3">
+                      SelectedItem="{Binding SelectedResolutionComboBoxItem, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}">
             </ComboBox>
 
             <TextBlock Margin="8 8 8 4">
-                Horizonal Tile Count (x) Max: 1000
+                Horizonal Tile Count (x) Max: 30
             </TextBlock>
-            <TextBox Margin="8 4 8 4"
-                     Width="55"
-                     HorizontalAlignment="Left">
-                <TextBox.Text>
-                    <Binding Path="HorizontalTileCount"
-                             Converter="{StaticResource NumericTextBoxMask}"
-                             UpdateSourceTrigger="PropertyChanged"
-                             Mode="TwoWay">
-                        <Binding.ConverterParameter>
-                            <system:Int32>1000</system:Int32>
-                        </Binding.ConverterParameter>
-                    </Binding>
-                </TextBox.Text>
-            </TextBox>
+            <ComboBox Margin="8 4 8 4"
+                      Width="55"
+                      HorizontalAlignment="Left"
+                      ItemsSource="{Binding HorizontalTileCountComboBoxItems}"
+                      SelectedItem="{Binding SelectedHorizontalTileCountComboBoxItem, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                      DisplayMemberPath="Value"
+                      SelectedValuePath="Id">
+            </ComboBox>
 
             <TextBlock Margin="8 8 8 4">
-                Vertical Tile Count (y) Max: 1000
+                Vertical Tile Count (y) Max: 30
             </TextBlock>
-            <TextBox Margin="8 4 8 4"
-                     Width="55"
-                     HorizontalAlignment="Left">
-                <TextBox.Text>
-                    <Binding Path="VerticalTileCount"
-                             Converter="{StaticResource NumericTextBoxMask}"
-                             UpdateSourceTrigger="PropertyChanged"
-                             Mode="TwoWay">
-                        <Binding.ConverterParameter>
-                            <system:Int32>1000</system:Int32>
-                        </Binding.ConverterParameter>
-                    </Binding>
-                </TextBox.Text>
-            </TextBox>
-        </StackPanel>
+            <ComboBox Margin="8 4 8 4"
+                      Width="55"
+                      HorizontalAlignment="Left"
+                      ItemsSource="{Binding VerticalTileCountComboBoxItems}"
+                      SelectedItem="{Binding SelectedVerticalTileCountComboBoxItem, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                      DisplayMemberPath="Value"
+                      SelectedValuePath="Id">
+            </ComboBox>
 
-        <StackPanel Grid.Row="1"
-                    Grid.Column="2"
-                    HorizontalAlignment="Stretch"
-                    >
             <TextBlock Margin="8 8 8 4">
                 Heightmap Filenames:
             </TextBlock>
-            <TextBox Margin="8 4 8 4"
+            <TextBox Margin="8 4 32 4"
                      Width="Auto"
                      HorizontalAlignment="Stretch"
                      Text="{Binding HeightmapFilenames, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
-
-           
         </StackPanel>
 
         <StackPanel Grid.Column="0" 
@@ -130,9 +109,6 @@
                      Command="{Binding GenerateCommand}">
                 Generate
             </Button>
-
         </StackPanel>
-
-        
     </Grid>
 </Window>

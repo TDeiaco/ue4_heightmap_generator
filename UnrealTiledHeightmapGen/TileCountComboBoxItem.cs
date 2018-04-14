@@ -6,14 +6,14 @@ using System.Threading.Tasks;
 
 namespace UnrealTiledHeightmapGen
 {
-    public class ResolutionComboBoxItem
+    public class TileCountComboBoxItem
     {
-        public string Resolution { get; set; }
+        public string Value { get; set; }
         public int Id { get; set; }
 
         public override string ToString()
         {
-            return Resolution;
+            return Value;
         }
     }
 }
