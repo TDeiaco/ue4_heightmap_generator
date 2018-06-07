@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Reflection;
 
-namespace UnrealTiledHeightmapGen
+namespace UnrealTiledHeightmapGen.Core
 {
     public static class ResolveAssemblies
     {

@@ -4,16 +4,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace UnrealTiledHeightmapGen
+namespace UnrealTiledHeightmapGen.Data
 {
-    public class TileCountComboBoxItem
+    public class GenerationHeightComboBoxItem
     {
-        public string Value { get; set; }
+        public string Level { get; set; }
         public int Id { get; set; }
 
         public override string ToString()
         {
-            return Value;
+            return Level;
         }
     }
 }

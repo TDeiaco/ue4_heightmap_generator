@@ -1,20 +1,69 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Data;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Windows;
-using System.Windows.Documents;
 using System.Windows.Forms;
 using System.Windows.Input;
-using UnrealTiledHeightmapGen.Annotations;
+using UnrealTiledHeightmapGen.Core;
+using UnrealTiledHeightmapGen.Data;
+using UnrealTiledHeightmapGen.Properties;
 using MessageBox = System.Windows.MessageBox;
 
-namespace UnrealTiledHeightmapGen
+namespace UnrealTiledHeightmapGen.Views
 {
     public class MainWindowDataContext : INotifyPropertyChanged
     {
+        private ObservableCollection<ComboBoxItem> _imageOutputTypes;
+        public ObservableCollection<ComboBoxItem> ImageOutputTypes
+        {
+            get { return _imageOutputTypes; }
+            set
+            {
+                if (Equals(value, _imageOutputTypes)) return;
+                _imageOutputTypes = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private ComboBoxItem _selectedImageOutputType;
+        public ComboBoxItem SelectedImageOutputType
+        {
+            get { return _selectedImageOutputType; }
+            set
+            {
+                if (Equals(value, _selectedImageOutputType)) return;
+                _selectedImageOutputType = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private ObservableCollection<GenerationHeightComboBoxItem> _generationHeightComboBoxItems;
+        public ObservableCollection<GenerationHeightComboBoxItem> GenerationHeightComboBoxItems
+        {
+            get { return _generationHeightComboBoxItems; }
+            set
+            {
+                if (Equals(value, _generationHeightComboBoxItems)) return;
+                _generationHeightComboBoxItems = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private GenerationHeightComboBoxItem _selectedGenerationHeightComboBoxItem;
+        public GenerationHeightComboBoxItem SelectedGenerationHeightComboBoxItem
+        {
+            get { return _selectedGenerationHeightComboBoxItem; }
+            set
+            {
+                if (Equals(value, _selectedGenerationHeightComboBoxItem)) return;
+                _selectedGenerationHeightComboBoxItem = value;
+                OnPropertyChanged();
+            }
+        }
+
         private List<ResolutionComboBoxItem> _resolutionComboBoxItems;
         private ResolutionComboBoxItem _selectedResolutionComboBoxItem;
 
@@ -23,6 +72,8 @@ namespace UnrealTiledHeightmapGen
 
         private List<TileCountComboBoxItem> _verticalTileCountComboBoxItems;
         private TileCountComboBoxItem _selectedVerticalTileCountComboBoxItem;
+
+        private string _heightmapStartingElevation;
 
         private string _heightmapFilenames = "TiledHeightmap";
         private string _baseDirectory = $"{Environment.GetEnvironmentVariable("USERPROFILE")}\\Documents";
@@ -95,6 +146,17 @@ namespace UnrealTiledHeightmapGen
             }
         }
 
+        public string HeightmapStartingElevation
+        {
+            get { return _heightmapStartingElevation; }
+            set
+            {
+                if (value == _heightmapStartingElevation) return;
+                _heightmapStartingElevation = value;
+                OnPropertyChanged();
+            }
+        }
+
         public string HeightmapFilenames
         {
             get { return _heightmapFilenames; }
@@ -131,7 +193,12 @@ namespace UnrealTiledHeightmapGen
         public ICommand GenerateCommand => new RelayCommand(Generate);
         public ICommand BrowseCommand => new RelayCommand(Browse);
         public ICommand SelectionChangedCommand => new RelayCommand(SelectionChanged);
+        public ICommand LoadedEventCommand => new RelayCommand(LoadedEvent);
 
+        private void LoadedEvent(object obj)
+        {
+           
+        }
 
         public MainWindowDataContext()
         {
@@ -163,6 +230,23 @@ namespace UnrealTiledHeightmapGen
                 VerticalTileCountComboBoxItems.Add(new TileCountComboBoxItem() { Id = i, Value = i.ToString() });
             }
             SelectedVerticalTileCountComboBoxItem = new TileCountComboBoxItem();
+
+            SelectedGenerationHeightComboBoxItem = new GenerationHeightComboBoxItem();
+            GenerationHeightComboBoxItems = new ObservableCollection<GenerationHeightComboBoxItem>();
+            for (int i = 1; i < 160; i++)
+            {
+                var level = i * 100;
+                GenerationHeightComboBoxItems.Add(
+                    new GenerationHeightComboBoxItem {Id = level, Level = level.ToString()});
+
+            }
+
+            SelectedImageOutputType = new ComboBoxItem();
+            ImageOutputTypes = new ObservableCollection<ComboBoxItem>();
+            ImageOutputTypes.Add(new ComboBoxItem() { Id = 0, Value = ".raw" });
+            ImageOutputTypes.Add(new ComboBoxItem() { Id = 0, Value = ".png" });
+            ImageOutputTypes.Add(new ComboBoxItem() { Id = 0, Value = ".bmp" });
+
         }
 
         private void Generate(object obj)
@@ -172,6 +256,19 @@ namespace UnrealTiledHeightmapGen
                 if (string.IsNullOrEmpty(HeightmapFilenames))
                 {
                     MessageBox.Show("Heightmap filenames required!", "Error", MessageBoxButton.OK);
+                    return;
+                }
+
+                var heightmapStartingElevation = 0;
+                if (!int.TryParse(HeightmapStartingElevation, out heightmapStartingElevation))
+                {
+                    MessageBox.Show("Starting elevation needs to be a number!", "Error", MessageBoxButton.OK);
+                    return;
+                }
+
+                if (heightmapStartingElevation > 65000)
+                {
+                    MessageBox.Show("Starting elevation must be less than 65000!", "Error", MessageBoxButton.OK);
                     return;
                 }
 
@@ -205,6 +302,8 @@ namespace UnrealTiledHeightmapGen
                     MessageBox.Show(e.Message, "Error creating directory!", MessageBoxButton.OK);
                 }
 
+                var elevationBytes = BitConverter.GetBytes(heightmapStartingElevation);
+
                 for (int yTileIndex = 0; yTileIndex < SelectedVerticalTileCountComboBoxItem.Id; yTileIndex++)
                 {
                     for (int xTileIndex = 0; xTileIndex < SelectedHorizontalTileCountComboBoxItem.Id; xTileIndex++)
@@ -217,7 +316,7 @@ namespace UnrealTiledHeightmapGen
                         {
                             for (int y = 0; y < SelectedResolutionComboBoxItem.Id; y++)
                             {
-                                writeBinay.Write(new byte[] { 0, 0 });
+                                writeBinay.Write(elevationBytes);
                             }
                         }
 
@@ -231,6 +330,112 @@ namespace UnrealTiledHeightmapGen
             {
                 MessageBox.Show(e.Message, "Error", MessageBoxButton.OK);
             }
+        }
+
+        private void Generate2(object obj)
+        {
+            try
+            {
+                if (HeightmapFilenamesValid())
+                {
+                    var heightmapStartingElevation = 0;
+                    if (StartingElevationIsNumeric(out heightmapStartingElevation))
+                    {
+                        if (StartingElevationValid(heightmapStartingElevation))
+                        {
+                            long dataQuantity = ((long)SelectedResolutionComboBoxItem.Id * (long)SelectedResolutionComboBoxItem.Id *
+                                                 (long)SelectedVerticalTileCountComboBoxItem.Id * (long)SelectedHorizontalTileCountComboBoxItem.Id) * (long)2; //In bytes
+
+                            var driveSpaceLeft = GetDriveSpace();
+                            if (EnoughDriveSpaceAvailable(dataQuantity, driveSpaceLeft))
+                            {
+                                if (MessageBox.Show(
+                                        $"This will generate {FormatBytes(dataQuantity)} of heightmaps, are you sure you want to continue?",
+                                        "Proceed?", MessageBoxButton.OKCancel) == MessageBoxResult.OK)
+                                {
+                                    try
+                                    {
+                                        if (!Directory.Exists(BaseDirectory))
+                                        {
+                                            Directory.CreateDirectory(BaseDirectory);
+                                        }
+                                    }
+                                    catch (Exception e)
+                                    {
+                                        MessageBox.Show(e.Message, "Error creating directory!", MessageBoxButton.OK);
+                                    }
+
+                                    var elevationBytes = BitConverter.GetBytes(heightmapStartingElevation);
+
+                                    for (int yTileIndex = 0; yTileIndex < SelectedVerticalTileCountComboBoxItem.Id; yTileIndex++)
+                                    {
+                                        for (int xTileIndex = 0; xTileIndex < SelectedHorizontalTileCountComboBoxItem.Id; xTileIndex++)
+                                        {
+                                            var filename = $"{BaseDirectory}\\{HeightmapFilenames}_X{xTileIndex}_Y{yTileIndex}.raw";
+
+                                            var writeStream = new FileStream(filename, FileMode.OpenOrCreate);
+                                            BinaryWriter writeBinay = new BinaryWriter(writeStream);
+                                            for (int x = 0; x < SelectedResolutionComboBoxItem.Id; x++)
+                                            {
+                                                for (int y = 0; y < SelectedResolutionComboBoxItem.Id; y++)
+                                                {
+                                                    writeBinay.Write(elevationBytes);
+                                                }
+                                            }
+
+                                            writeBinay.Close();
+                                        }
+                                    }
+
+                                    MessageBox.Show("Heightmaps generated.", "Success", MessageBoxButton.OK);
+                                }
+                            }
+                            else
+                            {
+                                MessageBox.Show(
+                                    $"This will generate {FormatBytes(dataQuantity)} which is more than your current available drive space: {FormatBytes(driveSpaceLeft)}.  Canceling..",
+                                    "Too much disk space required.", MessageBoxButton.OK);
+                            }
+                        }
+                        else
+                        {
+                            MessageBox.Show("Starting elevation must be less than 65000!", "Error", MessageBoxButton.OK);
+                        }
+                    }
+                    else
+                    {
+                        MessageBox.Show("Starting elevation needs to be a number!", "Error", MessageBoxButton.OK);
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("Heightmap filenames required!", "Error", MessageBoxButton.OK);
+                }
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(e.Message, "Error", MessageBoxButton.OK);
+            }
+        }
+
+        private bool StartingElevationIsNumeric(out int heightmapStartingElevation)
+        {
+            return int.TryParse(HeightmapStartingElevation, out heightmapStartingElevation);
+        }
+
+        private static bool EnoughDriveSpaceAvailable(long dataQuantity, long driveSpaceLeft)
+        {
+            return dataQuantity < driveSpaceLeft;
+        }
+
+        private bool HeightmapFilenamesValid()
+        {
+            return !string.IsNullOrEmpty(HeightmapFilenames);
+        }
+
+        private static bool StartingElevationValid(int heightmapStartingElevation)
+        {
+            return heightmapStartingElevation < 65000;
         }
 
         private void Browse(object obj)
@@ -294,10 +499,10 @@ namespace UnrealTiledHeightmapGen
         {
             if (!string.IsNullOrEmpty(SelectedVerticalTileCountComboBoxItem.Value) &&
                 !string.IsNullOrEmpty(SelectedHorizontalTileCountComboBoxItem.Value) &&
-                !string.IsNullOrEmpty(SelectedResolutionComboBoxItem.Resolution))
+                !string.IsNullOrEmpty(SelectedResolutionComboBoxItem.Resolution) &&
+                !string.IsNullOrEmpty(SelectedGenerationHeightComboBoxItem.Level))
                 GenerateButtonEnabled = true;
         }
-
 
         #region PropertyChanged
 

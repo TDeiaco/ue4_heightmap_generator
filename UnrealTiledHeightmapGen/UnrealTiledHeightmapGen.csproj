@@ -61,11 +61,13 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="ResolutionComboBoxItem.cs" />
-    <Compile Include="RelayCommand.cs" />
-    <Compile Include="ResolveAssemblies.cs" />
-    <Compile Include="TileCountComboBoxItem.cs" />
-    <Page Include="MainWindow.xaml">
+    <Compile Include="Data\ComboBoxItem.cs" />
+    <Compile Include="Data\GenerationHeightComboBoxItem.cs" />
+    <Compile Include="Data\ResolutionComboBoxItem.cs" />
+    <Compile Include="Core\RelayCommand.cs" />
+    <Compile Include="Core\ResolveAssemblies.cs" />
+    <Compile Include="Data\TileCountComboBoxItem.cs" />
+    <Page Include="Views\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -73,13 +75,13 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="MainWindow.xaml.cs">
+    <Compile Include="Views\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MainWindowDataContext.cs" />
+    <Compile Include="Views\MainWindowDataContext.cs" />
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
