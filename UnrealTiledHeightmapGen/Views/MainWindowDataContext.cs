@@ -260,7 +260,7 @@ namespace UnrealTiledHeightmapGen.Views
                 }
 
                 var heightmapStartingElevation = 0;
-                if (!int.TryParse(HeightmapStartingElevation, out heightmapStartingElevation))
+                if (!int.TryParse(SelectedGenerationHeightComboBoxItem.Level, out heightmapStartingElevation))
                 {
                     MessageBox.Show("Starting elevation needs to be a number!", "Error", MessageBoxButton.OK);
                     return;
@@ -301,6 +301,9 @@ namespace UnrealTiledHeightmapGen.Views
                 {
                     MessageBox.Show(e.Message, "Error creating directory!", MessageBoxButton.OK);
                 }
+
+                //Open browse file dialog
+                Browse(null);
 
                 var elevationBytes = BitConverter.GetBytes(heightmapStartingElevation);
 
