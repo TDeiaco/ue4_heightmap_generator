@@ -16,6 +16,10 @@ namespace UnrealTiledHeightmapGen.Views
 
             DataContext = new MainWindowDataContext();
         }
-        
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }

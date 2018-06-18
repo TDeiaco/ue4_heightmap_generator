@@ -11,7 +11,11 @@
         ResizeMode="NoResize"
         SizeToContent="WidthAndHeight"
         Background="White"
-        Icon="../HMGIcon.ico">
+        Icon="../HMGIcon.ico" Height="Auto" Width="Auto">
+
+    <Window.Resources>
+        <ResourceDictionary Source="../Styles/ProjectStyles.xaml"/>
+    </Window.Resources>
 
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="SelectionChanged">
@@ -46,10 +50,12 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
             <StackPanel Grid.Column="0"
-                Margin="8 0 0 0">
+                Margin="8 0 8 0">
 
                 <TextBlock Margin="8 8 8 4">
                     Project Name:
@@ -67,6 +73,7 @@
                           HorizontalAlignment="Left"
                           SelectedValuePath="Id"
                           DisplayMemberPath="Resolution"
+                          SelectedIndex="4"
                           ItemsSource="{Binding ResolutionComboBoxItems}"
                           SelectedItem="{Binding SelectedResolutionComboBoxItem, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}">
                     <i:Interaction.Triggers>
@@ -82,6 +89,7 @@
                 <ComboBox Margin="8 4 8 4"
                           Width="55"
                           HorizontalAlignment="Left"
+                          SelectedIndex="4"
                           ItemsSource="{Binding HorizontalTileCountComboBoxItems}"
                           SelectedItem="{Binding SelectedHorizontalTileCountComboBoxItem, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
                           DisplayMemberPath="Value"
@@ -99,6 +107,7 @@
                 <ComboBox Margin="8 4 8 4"
                           Width="55"
                           HorizontalAlignment="Left"
+                          SelectedIndex="4"
                           ItemsSource="{Binding VerticalTileCountComboBoxItems}"
                           SelectedItem="{Binding SelectedVerticalTileCountComboBoxItem, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
                           DisplayMemberPath="Value"
@@ -113,31 +122,28 @@
 
             </StackPanel>
 
-            <Border Grid.Column="1"
-                    BorderBrush="Black"
-                    BorderThickness="0.5 0 0.0 0">
+            <Border Grid.Column="3"
+                    >
 
                 <StackPanel >
                     <TextBlock Margin="8 8 8 4"
                            ToolTip="This is the height of the entire heightmap generated.  Using a value of 1000 gives the ability to dig down into your landscape upon sculping in UE4.">Generation Height</TextBlock>
-                    <ComboBox Margin="8 4 8 4"
-                          Width="100"
-                          HorizontalAlignment="Left"
-                          SelectedValuePath="Id"
-                          DisplayMemberPath="Level"
-                          ItemsSource="{Binding GenerationHeightComboBoxItems}"
-                          SelectedItem="{Binding SelectedGenerationHeightComboBoxItem, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}">
-                        <i:Interaction.Triggers>
-                            <i:EventTrigger EventName="SelectionChanged">
-                                <i:InvokeCommandAction Command="{Binding SelectionChangedCommand}" />
-                            </i:EventTrigger>
-                        </i:Interaction.Triggers>
-                    </ComboBox>
+
+                    <Border Padding="4"
+                            Width="Auto"
+                            BorderBrush="DimGray"
+                            BorderThickness="0.5"
+                            Margin="8">
+                        <TextBlock Text="{Binding HeightSliderValue, UpdateSourceTrigger=PropertyChanged}"
+                               Margin="4 4 8 4"
+                               FontWeight="Bold"/>
+                    </Border>
 
                     <TextBlock Margin="8 8 8 4">
-                    <Run>Represents how much you can sculpt</Run> <LineBreak />
-                    <Run>downward.  Use a value 1000 or greater</Run> <LineBreak />
-                    <Run>Range: 0 - 65536</Run> <LineBreak />
+                    <Run>* Represents the 16 bit height value </Run> <LineBreak />
+                    <Run>the landscapes are created at. </Run> <LineBreak />
+                    <Run>Use 32800 to get closests to Z=0. </Run> <LineBreak />
+                    <Run>Range: 0 - 65000, increments of 100</Run> <LineBreak />
                     <Run></Run> <LineBreak />
                     <Run></Run> <LineBreak />
                     <Run></Run> <LineBreak />
@@ -149,6 +155,39 @@
 
                 </StackPanel>
             </Border>
+
+            <Border BorderBrush="Black"
+                    BorderThickness="0.5 0 0 0"
+                    Grid.Column="1">
+                <Grid Margin="16 0 8 0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="Max"/>
+                    <Slider  Grid.Row="1" 
+                         Value="{Binding HeightSliderValue, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                        Minimum="0"
+                        Maximum="65000"
+                        IsSnapToTickEnabled="True"
+                        TickFrequency="100"
+                        Orientation="Vertical"
+                        Height="Auto" >
+                        <!--<Slider.RenderTransform> Margin="20,1,-20,-184"
+                        <RotateTransform CenterX="0.5" CenterY="0.5" Angle="180"/>
+                    </Slider.RenderTransform>-->
+                    </Slider>
+
+                    <TextBlock Grid.Row="2" 
+                           Text="Min"/>
+                </Grid>
+
+            </Border>
+
+            <Image Source="../Resources/bitmap.png"
+                   Grid.Column="2"
+                   Height="320"></Image>
         </Grid>
 
 
@@ -168,7 +207,7 @@
                 <Button Margin="8 4 8 4"
                         Padding="4"
                         Content="Browse"
-                        Width="Auto"
+                        Width="Auto"z
                         HorizontalAlignment="Left"
                         Command="{Binding BrowseCommand}"/>
             </StackPanel>-->
@@ -179,12 +218,11 @@
                      HorizontalAlignment="Left"
                      VerticalAlignment="Bottom"
                      Padding="4"
-                     Command="{Binding GenerateCommand}"
-                     IsEnabled="{Binding GenerateButtonEnabled, UpdateSourceTrigger=PropertyChanged}">
-                Generate
+                     Content="Generate"
+                     Command="{Binding GenerateCommand}">
             </Button>
 
-            <ComboBox  ItemsSource="{Binding ImageOutputTypes, UpdateSourceTrigger=PropertyChanged}"
+            <!--<ComboBox  ItemsSource="{Binding ImageOutputTypes, UpdateSourcged}"
                        SelectedItem="{Binding SelectedImageOutputType, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
                        DisplayMemberPath="Value"
                        SelectedValuePath="Id"
@@ -196,7 +234,7 @@
                          HorizontalAlignment="Left"
                          VerticalAlignment="Bottom"
                          Padding="4">
-            </ComboBox>
+            </ComboBox>-->
         </StackPanel>
     </Grid>
 </Window>
